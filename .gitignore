@@ -1,0 +1,4 @@
+src/config.ts
+.env.local
+.env
+node_modules/

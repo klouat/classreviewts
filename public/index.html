@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rh</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+    .input-field {
+      transition: all 0.2s ease;
+    }
+    .input-field:focus {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .btn-primary {
+      transition: all 0.2s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen p-4 md:p-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-6 fade-in">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r bg-clip-text">
+            rh
+          </h1>
+        </div>
+        <div class="hidden md:flex items-center gap-2 text-sm text-gray-500">
+          <span id="videoCount">0 videos</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tutorial Section -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-6 fade-in">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+        Tutorial
+      </h2>
+      <div class="flex flex-col items-center">
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/W7MEh5alPHs" title="YouTube tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="rounded-lg shadow-md"></iframe>
+        <p class="mt-4 text-gray-600 text-sm text-center">Tutorial biar gk bingung caranya gmn</p>
+      </div>
+    </div>
+
+    <!-- Add Video Card -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-6 fade-in">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Add New Video
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="flex flex-col">
+          <label class="text-sm font-medium text-gray-700 mb-2">Rank</label>
+          <select id="rank" class="input-field border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+          </select>
+        </div>
+        <div class="flex flex-col">
+          <label class="text-sm font-medium text-gray-700 mb-2">Class</label>
+          <input id="cls" placeholder="Enter class name" class="input-field border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+        </div>
+        <div class="flex flex-col">
+          <label class="text-sm font-medium text-gray-700 mb-2">URL</label>
+          <input id="url" placeholder="https://example.com/video" class="input-field border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+        </div>
+        <div class="flex flex-col justify-end">
+          <button onclick="addVideo()" class="btn-primary bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-lg font-medium hover:from-green-700 hover:to-green-800 flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Video
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bulk Upload Card -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-6 fade-in">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+        </svg>
+        Bulk Upload from JSON
+      </h2>
+      <div class="space-y-4">
+        <div class="flex flex-col">
+          <label class="text-sm font-medium text-gray-700 mb-2">Select JSON File</label>
+          <input type="file" id="jsonFile" accept=".json" class="input-field border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" />
+          <p class="text-xs text-gray-500 mt-2">Expected format: {"rank_key": {"Class Name": "URL", ...}, ...}</p>
+        </div>
+        <div class="flex gap-3">
+          <button onclick="bulkUpload()" class="btn-primary bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-3 rounded-lg font-medium hover:from-purple-700 hover:to-purple-800 flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            Upload Videos
+          </button>
+          <button onclick="previewBulkUpload()" class="btn-primary bg-gradient-to-r from-gray-600 to-gray-700 text-white px-6 py-3 rounded-lg font-medium hover:from-gray-700 hover:to-gray-800 flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            Preview
+          </button>
+          <button onclick="showAvailableRanks()" class="btn-primary bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-6 py-3 rounded-lg font-medium hover:from-indigo-700 hover:to-indigo-800 flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Show Ranks
+          </button>
+        </div>
+        <div id="bulkPreview" class="hidden mt-4 p-4 bg-gray-50 rounded-lg max-h-64 overflow-y-auto">
+          <h3 class="font-semibold text-gray-800 mb-2">Preview:</h3>
+          <div id="bulkPreviewContent" class="text-sm text-gray-600"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete All by Rank Card -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-6 fade-in">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+        Delete All Videos by Rank
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="flex flex-col">
+          <label class="text-sm font-medium text-gray-700 mb-2">Select Rank to Delete</label>
+          <select id="deleteRank" class="input-field border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white">
+            <option value="">Choose a rank...</option>
+          </select>
+        </div>
+        <div class="flex flex-col justify-end">
+          <button onclick="deleteAllByRank()" class="btn-primary bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-lg font-medium hover:from-red-700 hover:to-red-800 flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Delete All in Rank
+          </button>
+        </div>
+      </div>
+      <p class="text-xs text-gray-500 mt-3">⚠️ Warning: This will permanently delete all videos in the selected rank.</p>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-6 fade-in">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+        </svg>
+        Filter Videos
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="flex flex-col">
+          <label class="text-sm font-medium text-gray-700 mb-2">Filter by Rank</label>
+          <select id="fRank" class="input-field border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+          </select>
+        </div>
+        <div class="flex flex-col">
+          <label class="text-sm font-medium text-gray-700 mb-2">Filter by Class</label>
+          <input id="fClass" placeholder="Enter class to filter" class="input-field border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+        </div>
+        <div class="flex flex-col justify-end">
+          <button onclick="loadVideos()" class="btn-primary bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            Apply Filter
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Videos Table -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden fade-in">
+      <div class="p-6 md:p-8 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
+          <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          Video Library
+        </h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">ID</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Rank</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Class</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">URL</th>
+              <th class="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="rows" class="divide-y divide-gray-200">
+            <!-- Rows will be inserted here -->
+          </tbody>
+        </table>
+        <div id="emptyState" class="hidden p-12 text-center">
+          <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          <p class="text-gray-500 text-lg">No videos found</p>
+          <p class="text-gray-400 text-sm mt-2">Try adjusting your filters or add a new video</p>
+        </div>
+      </div>
+      <!-- Pagination -->
+      <div id="pagination" class="hidden p-6 border-t border-gray-200">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div class="text-sm text-gray-600">
+            Showing <span id="showingFrom" class="font-semibold">1</span> to <span id="showingTo" class="font-semibold">10</span> of <span id="totalVideos" class="font-semibold">0</span> videos
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="goToPage(1)" id="firstPage" class="btn-primary bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              </svg>
+            </button>
+            <button onclick="goToPage(currentPage - 1)" id="prevPage" class="btn-primary bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div id="pageNumbers" class="flex gap-1">
+              <!-- Page numbers will be inserted here -->
+            </div>
+            <button onclick="goToPage(currentPage + 1)" id="nextPage" class="btn-primary bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+            <button onclick="goToPage(totalPages)" id="lastPage" class="btn-primary bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="text-sm text-gray-600">Per page:</label>
+            <select id="itemsPerPage" onchange="changeItemsPerPage()" class="input-field border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+let RANKS = [];
+let allVideos = [];
+let currentPage = 1;
+let itemsPerPage = 10;
+let totalPages = 1;
+
+async function loadRanks() {
+  try {
+    const res = await fetch("/api/ranks");
+    RANKS = await res.json();
+    
+    const rankOptions = RANKS.map(r => 
+      `<option value="${r.id}">${r.label}</option>`
+    ).join("");
+    
+    rank.innerHTML = rankOptions;
+    fRank.innerHTML = `<option value="">All ranks</option>` + rankOptions;
+    deleteRank.innerHTML = `<option value="">Choose a rank...</option>` + rankOptions;
+  } catch (error) {
+    console.error("Failed to load ranks:", error);
+    showNotification("Failed to load ranks", "error");
+  }
+}
+
+async function loadVideos() {
+  try {
+    const params = new URLSearchParams({
+      rank: fRank.value,
+      cls: fClass.value
+    });
+    
+    const res = await fetch("/api/videos?" + params.toString());
+    allVideos = await res.json();
+    
+    // Reset to first page when loading new data
+    currentPage = 1;
+    
+    renderVideos();
+  } catch (error) {
+    console.error("Failed to load videos:", error);
+    showNotification("Failed to load videos", "error");
+  }
+}
+
+function renderVideos() {
+  const tbody = document.getElementById("rows");
+  const emptyState = document.getElementById("emptyState");
+  const videoCount = document.getElementById("videoCount");
+  const paginationDiv = document.getElementById("pagination");
+  
+  if (allVideos.length === 0) {
+    tbody.innerHTML = "";
+    emptyState.classList.remove("hidden");
+    paginationDiv.classList.add("hidden");
+    videoCount.textContent = "0 videos";
+    return;
+  }
+  
+  emptyState.classList.add("hidden");
+  videoCount.textContent = `${allVideos.length} video${allVideos.length !== 1 ? 's' : ''}`;
+  
+  // Calculate pagination
+  totalPages = Math.ceil(allVideos.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, allVideos.length);
+  const videosToShow = allVideos.slice(startIndex, endIndex);
+  
+  // Render table rows
+  tbody.innerHTML = videosToShow.map(r => `
+    <tr class="hover:bg-gray-50 transition-colors">
+      <td class="px-6 py-4 whitespace-nowrap">
+        <span class="text-sm font-medium text-gray-900">#${r.id}</span>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <select onchange="update(${r.id}, this)" class="input-field border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+          ${RANKS.map(rank =>
+            `<option value="${rank.id}" ${rank.id === r.rank ? "selected" : ""}>
+              ${rank.label}
+            </option>`
+          ).join("")}
+        </select>
+      </td>
+      <td class="px-6 py-4">
+        <input value="${r.class}" onblur="update(${r.id}, this)" class="input-field border border-gray-300 rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+      </td>
+      <td class="px-6 py-4">
+        <input value="${r.url}" onblur="update(${r.id}, this)" class="input-field border border-gray-300 rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-2" />
+        ${r.url.includes('drive.google.com/file/d/') ? `<iframe src="https://drive.google.com/uc?export=preview&id=${r.url.split('/d/')[1].split('/')[0]}" width="320" height="180" allow="autoplay"></iframe>` : ''}
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-center">
+        <button onclick="del(${r.id})" class="btn-primary bg-gradient-to-r from-red-600 to-red-700 text-white px-4 py-2 rounded-lg font-medium hover:from-red-700 hover:to-red-800 inline-flex items-center gap-2 text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          Delete
+        </button>
+      </td>
+    </tr>
+  `).join("");
+  
+  // Update pagination
+  updatePagination(startIndex, endIndex);
+}
+
+function updatePagination(startIndex, endIndex) {
+  const paginationDiv = document.getElementById("pagination");
+  
+  if (allVideos.length <= itemsPerPage) {
+    paginationDiv.classList.add("hidden");
+    return;
+  }
+  
+  paginationDiv.classList.remove("hidden");
+  
+  // Update showing text
+  document.getElementById("showingFrom").textContent = startIndex + 1;
+  document.getElementById("showingTo").textContent = endIndex;
+  document.getElementById("totalVideos").textContent = allVideos.length;
+  
+  // Update button states
+  document.getElementById("firstPage").disabled = currentPage === 1;
+  document.getElementById("prevPage").disabled = currentPage === 1;
+  document.getElementById("nextPage").disabled = currentPage === totalPages;
+  document.getElementById("lastPage").disabled = currentPage === totalPages;
+  
+  // Render page numbers
+  renderPageNumbers();
+}
+
+function renderPageNumbers() {
+  const pageNumbersDiv = document.getElementById("pageNumbers");
+  const maxVisiblePages = 5;
+  let pages = [];
+  
+  if (totalPages <= maxVisiblePages) {
+    // Show all pages
+    pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  } else {
+    // Show current page and surrounding pages
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, currentPage + 2);
+    
+    // Adjust if at the beginning or end
+    if (currentPage <= 3) {
+      endPage = maxVisiblePages;
+    } else if (currentPage >= totalPages - 2) {
+      startPage = totalPages - maxVisiblePages + 1;
+    }
+    
+    pages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+  }
+  
+  pageNumbersDiv.innerHTML = pages.map(page => `
+    <button 
+      onclick="goToPage(${page})" 
+      class="btn-primary px-4 py-2 rounded-lg font-medium ${
+        page === currentPage 
+          ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white' 
+          : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+      }"
+    >
+      ${page}
+    </button>
+  `).join('');
+}
+
+function goToPage(page) {
+  if (page < 1 || page > totalPages || page === currentPage) {
+    return;
+  }
+  
+  currentPage = page;
+  renderVideos();
+  
+  // Scroll to top of table
+  document.querySelector('.overflow-x-auto').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function changeItemsPerPage() {
+  itemsPerPage = parseInt(document.getElementById("itemsPerPage").value);
+  currentPage = 1;
+  renderVideos();
+}
+
+async function addVideo() {
+  const rankVal = rank.value;
+  const clsVal = cls.value.trim();
+  const urlVal = url.value.trim();
+  
+  if (!clsVal || !urlVal) {
+    showNotification("Please fill in all fields", "warning");
+    return;
+  }
+  
+  try {
+    const response = await fetch("/api/videos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        rank: rankVal,
+        class: clsVal,
+        url: urlVal
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    cls.value = "";
+    url.value = "";
+    showNotification("Video added successfully", "success");
+    await loadVideos();
+  } catch (error) {
+    console.error("Failed to add video:", error);
+    showNotification("Failed to add video", "error");
+  }
+}
+
+async function update(id, el) {
+  const row = el.closest("tr");
+  const inputs = row.querySelectorAll("select, input");
+  
+  try {
+    await fetch(`/api/videos/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        rank: inputs[0].value,
+        class: inputs[1].value,
+        url: inputs[2].value
+      })
+    });
+    showNotification("Video updated successfully", "success");
+  } catch (error) {
+    console.error("Failed to update video:", error);
+    showNotification("Failed to update video", "error");
+  }
+}
+
+async function del(id) {
+  if (!confirm("Are you sure you want to delete this video?")) {
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/api/videos/${id}`, { method: "DELETE" });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    showNotification("Video deleted successfully", "success");
+    await loadVideos();
+  } catch (error) {
+    console.error("Failed to delete video:", error);
+    showNotification("Failed to delete video", "error");
+  }
+}
+
+function showNotification(message, type = "info") {
+  const colors = {
+    success: "from-green-600 to-green-700",
+    error: "from-red-600 to-red-700",
+    warning: "from-yellow-600 to-yellow-700",
+    info: "from-blue-600 to-blue-700"
+  };
+  
+  const notification = document.createElement("div");
+  notification.className = `fixed top-4 right-4 bg-gradient-to-r ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 fade-in`;
+  notification.textContent = message;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.opacity = "0";
+    notification.style.transform = "translateY(-10px)";
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+function parseJsonFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        resolve(data);
+      } catch (error) {
+        reject(new Error("Invalid JSON file"));
+      }
+    };
+    reader.onerror = () => reject(new Error("Failed to read file"));
+    reader.readAsText(file);
+  });
+}
+
+function getRankIdFromKey(rankKey) {
+  // Remove "rank_" prefix and return the rank identifier
+  return rankKey.replace("rank_", "");
+}
+
+function findMatchingRank(rankIdentifier) {
+  // Try exact match first (case-insensitive) on ID
+  let match = RANKS.find(r => 
+    r.id.toLowerCase() === rankIdentifier.toLowerCase()
+  );
+  
+  if (match) return match;
+  
+  // Try exact match on label
+  match = RANKS.find(r => 
+    r.label.toLowerCase() === rankIdentifier.toLowerCase()
+  );
+  
+  if (match) return match;
+  
+  // Try matching the rank part after "rank_" prefix
+  const fullRankId = `rank_${rankIdentifier}`;
+  match = RANKS.find(r => 
+    r.id.toLowerCase() === fullRankId.toLowerCase()
+  );
+  
+  if (match) return match;
+  
+  // Try matching without special characters (for things like s+ matching s+)
+  const cleanIdentifier = rankIdentifier.replace(/[^a-z0-9]/gi, '').toLowerCase();
+  match = RANKS.find(r => {
+    const cleanId = r.id.replace(/[^a-z0-9]/gi, '').toLowerCase();
+    const cleanLabel = r.label.replace(/[^a-z0-9]/gi, '').toLowerCase();
+    return cleanId === cleanIdentifier || cleanLabel === cleanIdentifier;
+  });
+  
+  if (match) return match;
+  
+  // Last resort: try matching if rank ID ends with the identifier (but not contains)
+  // This prevents "s" from matching "ss", but allows more flexible matching
+  match = RANKS.find(r => {
+    const idParts = r.id.split('_');
+    const lastPart = idParts[idParts.length - 1];
+    return lastPart.toLowerCase() === rankIdentifier.toLowerCase();
+  });
+  
+  return match;
+}
+
+function showAvailableRanks() {
+  const previewDiv = document.getElementById("bulkPreview");
+  const previewContent = document.getElementById("bulkPreviewContent");
+  
+  if (RANKS.length === 0) {
+    showNotification("No ranks loaded yet", "warning");
+    return;
+  }
+  
+  let html = `
+    <div class="space-y-2">
+      <div class="font-semibold text-gray-800 mb-3">Available Ranks in System:</div>
+  `;
+  
+  RANKS.forEach((rank, index) => {
+    html += `
+      <div class="p-3 bg-white rounded border border-gray-200">
+        <div class="font-mono text-sm">
+          <span class="font-semibold">ID:</span> <span class="text-blue-600">${rank.id}</span>
+          <span class="ml-4 font-semibold">Label:</span> <span class="text-purple-600">${rank.label}</span>
+        </div>
+      </div>
+    `;
+  });
+  
+  html += `
+    </div>
+    <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm">
+      <strong>Note:</strong> Make sure your JSON rank keys (like "rank_s", "rank_a") match one of these IDs or labels.
+    </div>
+  `;
+  
+  previewContent.innerHTML = html;
+  previewDiv.classList.remove("hidden");
+}
+
+async function previewBulkUpload() {
+  const fileInput = document.getElementById("jsonFile");
+  const previewDiv = document.getElementById("bulkPreview");
+  const previewContent = document.getElementById("bulkPreviewContent");
+  
+  if (!fileInput.files.length) {
+    showNotification("Please select a JSON file first", "warning");
+    return;
+  }
+  
+  try {
+    const data = await parseJsonFile(fileInput.files[0]);
+    let totalVideos = 0;
+    let previewHtml = "<div class='space-y-2'>";
+    
+    for (const [rankKey, classes] of Object.entries(data)) {
+      const rankId = getRankIdFromKey(rankKey);
+      const classCount = Object.keys(classes).length;
+      totalVideos += classCount;
+      
+      previewHtml += `
+        <div class="p-3 bg-white rounded border border-gray-200">
+          <div class="font-semibold text-gray-800">Rank: ${rankId}</div>
+          <div class="text-gray-600 text-xs mt-1">${classCount} video${classCount !== 1 ? 's' : ''}</div>
+          <div class="mt-2 space-y-1">
+            ${Object.keys(classes).slice(0, 3).map(cls => 
+              `<div class="text-xs text-gray-500">• ${cls}</div>`
+            ).join('')}
+            ${classCount > 3 ? `<div class="text-xs text-gray-400">... and ${classCount - 3} more</div>` : ''}
+          </div>
+        </div>
+      `;
+    }
+    
+    previewHtml += `</div><div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
+      <strong class="text-blue-800">Total: ${totalVideos} videos will be uploaded</strong>
+    </div>`;
+    
+    previewContent.innerHTML = previewHtml;
+    previewDiv.classList.remove("hidden");
+  } catch (error) {
+    showNotification(error.message, "error");
+  }
+}
+
+async function bulkUpload() {
+  const fileInput = document.getElementById("jsonFile");
+  
+  if (!fileInput.files.length) {
+    showNotification("Please select a JSON file first", "warning");
+    return;
+  }
+  
+  if (!confirm("Are you sure you want to upload all videos from this JSON file? This may take a while.")) {
+    return;
+  }
+  
+  try {
+    const data = await parseJsonFile(fileInput.files[0]);
+    let successCount = 0;
+    let errorCount = 0;
+    let totalCount = 0;
+    const errors = [];
+    
+    // Count total videos
+    for (const classes of Object.values(data)) {
+      totalCount += Object.keys(classes).length;
+    }
+    
+    showNotification(`Starting bulk upload of ${totalCount} videos...`, "info");
+    
+    // Process each rank
+    for (const [rankKey, classes] of Object.entries(data)) {
+      const rankIdentifier = getRankIdFromKey(rankKey);
+      
+      // Find the matching rank
+      const matchingRank = findMatchingRank(rankIdentifier);
+      
+      if (!matchingRank) {
+        console.error(`Rank not found for: ${rankKey} (identifier: ${rankIdentifier})`);
+        console.log('Available ranks:', RANKS);
+        errors.push(`Rank "${rankKey}" not found`);
+        errorCount += Object.keys(classes).length;
+        continue;
+      }
+      
+      console.log(`Processing rank: ${rankKey} -> ${matchingRank.id} (${matchingRank.label})`);
+      
+      // Process each class in this rank
+      for (const [className, url] of Object.entries(classes)) {
+        try {
+          const response = await fetch("/api/videos", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              rank: matchingRank.id,
+              class: className,
+              url: url
+            })
+          });
+          
+          if (response.ok) {
+            successCount++;
+            console.log(`✓ Uploaded: ${className}`);
+          } else {
+            errorCount++;
+            const errorText = await response.text();
+            console.error(`Failed to upload ${className}: ${response.status} - ${errorText}`);
+            errors.push(`${className}: ${response.status}`);
+          }
+          
+          // Small delay to avoid overwhelming the server
+          await new Promise(resolve => setTimeout(resolve, 100));
+        } catch (error) {
+          errorCount++;
+          console.error(`Error uploading ${className}:`, error);
+          errors.push(`${className}: ${error.message}`);
+        }
+      }
+    }
+    
+    // Show results
+    if (errorCount === 0) {
+      showNotification(`✓ Successfully uploaded all ${successCount} videos!`, "success");
+    } else if (successCount > 0) {
+      showNotification(`Uploaded ${successCount} videos, ${errorCount} failed`, "warning");
+      console.log('Errors:', errors);
+    } else {
+      showNotification(`Upload failed: ${errorCount} errors. Check console for details.`, "error");
+      console.log('All errors:', errors);
+    }
+    
+    // Reload the video list
+    await loadVideos();
+    
+    // Clear the file input
+    fileInput.value = "";
+    document.getElementById("bulkPreview").classList.add("hidden");
+    
+  } catch (error) {
+    showNotification(`Bulk upload failed: ${error.message}`, "error");
+    console.error('Bulk upload error:', error);
+  }
+}
+
+async function deleteAllByRank() {
+  const rankVal = document.getElementById("deleteRank").value;
+  
+  if (!rankVal) {
+    showNotification("Please select a rank to delete", "warning");
+    return;
+  }
+  
+  // Get the rank label for confirmation message
+  const selectedRank = RANKS.find(r => r.id === rankVal);
+  const rankLabel = selectedRank ? selectedRank.label : rankVal;
+  
+  try {
+    // First, get count of videos in this rank
+    const params = new URLSearchParams({ rank: rankVal });
+    const res = await fetch("/api/videos?" + params.toString());
+    const videos = await res.json();
+    
+    if (videos.length === 0) {
+      showNotification(`No videos found in ${rankLabel}`, "warning");
+      return;
+    }
+    
+    // Confirm deletion
+    if (!confirm(`Are you sure you want to delete ALL ${videos.length} video(s) in ${rankLabel}? This action cannot be undone!`)) {
+      return;
+    }
+    
+    // Delete all videos in this rank
+    let successCount = 0;
+    let errorCount = 0;
+    
+    showNotification(`Deleting ${videos.length} videos from ${rankLabel}...`, "info");
+    
+    for (const video of videos) {
+      try {
+        const response = await fetch(`/api/videos/${video.id}`, { 
+          method: "DELETE" 
+        });
+        
+        if (response.ok) {
+          successCount++;
+        } else {
+          errorCount++;
+          console.error(`Failed to delete video ID ${video.id}`);
+        }
+      } catch (error) {
+        errorCount++;
+        console.error(`Error deleting video ID ${video.id}:`, error);
+      }
+    }
+    
+    // Show results
+    if (errorCount === 0) {
+      showNotification(`✓ Successfully deleted all ${successCount} videos from ${rankLabel}!`, "success");
+    } else {
+      showNotification(`Deleted ${successCount} videos, ${errorCount} failed`, "warning");
+    }
+    
+    // Reset the dropdown
+    document.getElementById("deleteRank").value = "";
+    
+    // Reload the video list
+    await loadVideos();
+    
+  } catch (error) {
+    showNotification(`Failed to delete videos: ${error.message}`, "error");
+    console.error("Delete all by rank error:", error);
+  }
+}
+
+// Initialize
+loadRanks().then(loadVideos);
+</script>
+</body>
+</html>
