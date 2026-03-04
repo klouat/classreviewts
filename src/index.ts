@@ -10,12 +10,11 @@ import {
   GuildTextBasedChannel
 } from "discord.js";
 
-dotenv.config({ path: ".env.local" });
 import * as dotenv from "dotenv";
+dotenv.config();
+
 import { getClasses, getVideo, insertVideo, removeVideo } from "./videoService";
 import "./web";
-
-dotenv.config();
 
 /* ===================== CONFIG ===================== */
 const ADMIN_USER_ID = "282638550502211584";
@@ -27,7 +26,6 @@ const CHANNEL_ID = process.env.CHANNEL_ID!;
 const client = new Client({
   intents: [GatewayIntentBits.Guilds]
 });
-dotenv.config();
 const userState = new Map<string, { rank: string; class?: string }>();
 
 /* ===================== RANKS ===================== */

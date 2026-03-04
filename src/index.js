@@ -34,11 +34,10 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
-dotenv.config({ path: ".env.local" });
 const dotenv = __importStar(require("dotenv"));
+dotenv.config();
 const videoService_1 = require("./videoService");
 require("./web");
-dotenv.config();
 /* ===================== CONFIG ===================== */
 const ADMIN_USER_ID = "282638550502211584";
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
@@ -48,7 +47,6 @@ const CHANNEL_ID = process.env.CHANNEL_ID;
 const client = new discord_js_1.Client({
     intents: [discord_js_1.GatewayIntentBits.Guilds]
 });
-dotenv.config();
 const userState = new Map();
 /* ===================== RANKS ===================== */
 const RANKS = [
