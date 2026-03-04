@@ -1,54 +1,47 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRanks = getRanks;
 exports.getClasses = getClasses;
 exports.getVideo = getVideo;
 exports.insertVideo = insertVideo;
 exports.removeVideo = removeVideo;
-const better_sqlite3_1 = __importDefault(require("better-sqlite3"));
-/* ===================== DB ===================== */
-const db = new better_sqlite3_1.default("videos.db");
-/* ===================== INIT TABLE ===================== */
-db.prepare(`
-  CREATE TABLE IF NOT EXISTS videos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    rank TEXT NOT NULL,
-    class TEXT NOT NULL,
-    url TEXT NOT NULL,
-    UNIQUE(rank, class)
-  )
-`).run();
+const db_1 = require("./db");
 /* ===================== FUNCTIONS ===================== */
-function getRanks() {
-    const rows = db
-        .prepare("SELECT DISTINCT rank FROM videos ORDER BY rank")
-        .all();
-    return rows.map(r => r.rank);
+async function getClasses(rank) {
+    const db = await (0, db_1.get_db)();
+    const stmt = db.prepare("SELECT DISTINCT class FROM videos WHERE rank = ? ORDER BY class");
+    stmt.bind([rank]);
+    const results = [];
+    while (stmt.step()) {
+        const row = stmt.getAsObject();
+        results.push(row.class);
+    }
+    stmt.free();
+    return results;
 }
-function getClasses(rank) {
-    const rows = db
-        .prepare("SELECT DISTINCT class FROM videos WHERE rank = ? ORDER BY class")
-        .all(rank);
-    return rows.map(r => r.class);
+async function getVideo(rank, cls) {
+    const db = await (0, db_1.get_db)();
+    const stmt = db.prepare("SELECT url FROM videos WHERE rank = ? AND class = ? LIMIT 1");
+    stmt.bind([rank, cls]);
+    let url = null;
+    if (stmt.step()) {
+        const row = stmt.getAsObject();
+        url = row.url;
+    }
+    stmt.free();
+    return url;
 }
-function getVideo(rank, cls) {
-    const row = db
-        .prepare("SELECT url FROM videos WHERE rank = ? AND class = ? LIMIT 1")
-        .get(rank, cls);
-    return row?.url ?? null;
+async function insertVideo(rank, cls, url) {
+    const db = await (0, db_1.get_db)();
+    db.run("INSERT OR REPLACE INTO videos (rank, class, url) VALUES (?, ?, ?)", [rank, cls, url]);
+    (0, db_1.save_db)();
 }
-function insertVideo(rank, cls, url) {
-    db.prepare(`
-    INSERT OR REPLACE INTO videos (rank, class, url)
-    VALUES (?, ?, ?)
-  `).run(rank, cls, url);
-}
-function removeVideo(rank, cls) {
-    const result = db
-        .prepare("DELETE FROM videos WHERE rank = ? AND class = ?")
-        .run(rank, cls);
-    return result.changes > 0;
+async function removeVideo(rank, cls) {
+    const db = await (0, db_1.get_db)();
+    const count_before = db.exec("SELECT COUNT(*) as c FROM videos WHERE rank = ? AND class = ?", [rank, cls]);
+    const had_rows = count_before.length > 0
+        && count_before[0].values.length > 0
+        && count_before[0].values[0][0] > 0;
+    db.run("DELETE FROM videos WHERE rank = ? AND class = ?", [rank, cls]);
+    (0, db_1.save_db)();
+    return had_rows;
 }

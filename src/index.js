@@ -116,7 +116,7 @@ client.on("interactionCreate", async (interaction) => {
         if (sub === "add") {
             const cls = interaction.options.getString("class", true);
             const url = interaction.options.getString("url", true);
-            (0, videoService_1.insertVideo)(rank, cls, url);
+            await (0, videoService_1.insertVideo)(rank, cls, url);
             await interaction.reply({
                 ephemeral: true,
                 content: `✅ **Added successfully**\n${rank} → ${cls}`
@@ -126,7 +126,7 @@ client.on("interactionCreate", async (interaction) => {
         // 🗑️ REMOVE
         if (sub === "remove") {
             const cls = interaction.options.getString("class", true);
-            const removed = (0, videoService_1.removeVideo)(rank, cls);
+            const removed = await (0, videoService_1.removeVideo)(rank, cls);
             await interaction.reply({
                 ephemeral: true,
                 content: removed
@@ -140,7 +140,7 @@ client.on("interactionCreate", async (interaction) => {
     if (interaction.isButton()) {
         const rank = interaction.customId;
         userState.set(interaction.user.id, { rank });
-        const classes = (0, videoService_1.getClasses)(rank);
+        const classes = await (0, videoService_1.getClasses)(rank);
         if (!classes.length) {
             await interaction.reply({
                 ephemeral: true,
@@ -173,7 +173,7 @@ client.on("interactionCreate", async (interaction) => {
         }
         const selectedClass = interaction.values[0];
         state.class = selectedClass;
-        const video = (0, videoService_1.getVideo)(state.rank, selectedClass);
+        const video = await (0, videoService_1.getVideo)(state.rank, selectedClass);
         await interaction.reply({
             ephemeral: true,
             content: video

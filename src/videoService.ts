@@ -1,69 +1,76 @@
-import Database from "better-sqlite3";
+import { get_db, save_db } from "./db";
 
 /* ===================== TYPES ===================== */
-type RankRow = { rank: string };
 type ClassRow = { class: string };
 type VideoRow = { url: string };
 
-/* ===================== DB ===================== */
-const db = new Database("videos.db");
-
-/* ===================== INIT TABLE ===================== */
-db.prepare(`
-  CREATE TABLE IF NOT EXISTS videos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    rank TEXT NOT NULL,
-    class TEXT NOT NULL,
-    url TEXT NOT NULL,
-    UNIQUE(rank, class)
-  )
-`).run();
-
 /* ===================== FUNCTIONS ===================== */
-export function getRanks(): string[] {
-  const rows = db
-    .prepare("SELECT DISTINCT rank FROM videos ORDER BY rank")
-    .all() as RankRow[];
+export async function getClasses(rank: string): Promise<string[]> {
+  const db = await get_db();
+  const stmt = db.prepare(
+    "SELECT DISTINCT class FROM videos WHERE rank = ? ORDER BY class"
+  );
+  stmt.bind([rank]);
 
-  return rows.map(r => r.rank);
+  const results: string[] = [];
+  while (stmt.step()) {
+    const row = stmt.getAsObject() as ClassRow;
+    results.push(row.class);
+  }
+  stmt.free();
+  return results;
 }
 
-export function getClasses(rank: string): string[] {
-  const rows = db
-    .prepare(
-      "SELECT DISTINCT class FROM videos WHERE rank = ? ORDER BY class"
-    )
-    .all(rank) as ClassRow[];
+export async function getVideo(
+  rank: string,
+  cls: string
+): Promise<string | null> {
+  const db = await get_db();
+  const stmt = db.prepare(
+    "SELECT url FROM videos WHERE rank = ? AND class = ? LIMIT 1"
+  );
+  stmt.bind([rank, cls]);
 
-  return rows.map(r => r.class);
+  let url: string | null = null;
+  if (stmt.step()) {
+    const row = stmt.getAsObject() as VideoRow;
+    url = row.url;
+  }
+  stmt.free();
+  return url;
 }
 
-export function getVideo(rank: string, cls: string): string | null {
-  const row = db
-    .prepare(
-      "SELECT url FROM videos WHERE rank = ? AND class = ? LIMIT 1"
-    )
-    .get(rank, cls) as VideoRow | undefined;
-
-  return row?.url ?? null;
-}
-
-export function insertVideo(
+export async function insertVideo(
   rank: string,
   cls: string,
   url: string
-) {
-  db.prepare(`
-    INSERT OR REPLACE INTO videos (rank, class, url)
-    VALUES (?, ?, ?)
-  `).run(rank, cls, url);
+): Promise<void> {
+  const db = await get_db();
+  db.run(
+    "INSERT OR REPLACE INTO videos (rank, class, url) VALUES (?, ?, ?)",
+    [rank, cls, url]
+  );
+  save_db();
 }
 
-export function removeVideo(rank: string, cls: string): boolean {
-  const result = db
-    .prepare("DELETE FROM videos WHERE rank = ? AND class = ?")
-    .run(rank, cls);
+export async function removeVideo(
+  rank: string,
+  cls: string
+): Promise<boolean> {
+  const db = await get_db();
 
-  return result.changes > 0;
+  const count_before = db.exec(
+    "SELECT COUNT(*) as c FROM videos WHERE rank = ? AND class = ?",
+    [rank, cls] as any
+  );
+  const had_rows = count_before.length > 0
+    && count_before[0].values.length > 0
+    && (count_before[0].values[0][0] as number) > 0;
+
+  db.run(
+    "DELETE FROM videos WHERE rank = ? AND class = ?",
+    [rank, cls]
+  );
+  save_db();
+  return had_rows;
 }
-

@@ -24,7 +24,8 @@ app.get("/api/ranks", (_req, res) => {
     res.json(RANKS);
 });
 /* GET (with filters) */
-app.get("/api/videos", (req, res) => {
+app.get("/api/videos", async (req, res) => {
+    const db = await (0, db_1.get_db)();
     const { rank, cls } = req.query;
     let sql = "SELECT * FROM videos WHERE 1=1";
     const params = [];
@@ -36,30 +37,42 @@ app.get("/api/videos", (req, res) => {
         sql += " AND class = ?";
         params.push(cls);
     }
-    const rows = db_1.db.prepare(sql).all(...params);
+    const stmt = db.prepare(sql);
+    if (params.length > 0)
+        stmt.bind(params);
+    const rows = [];
+    while (stmt.step()) {
+        rows.push(stmt.getAsObject());
+    }
+    stmt.free();
     res.json(rows);
 });
 /* ADD */
-app.post("/api/videos", (req, res) => {
+app.post("/api/videos", async (req, res) => {
+    const db = await (0, db_1.get_db)();
     const { rank, class: cls, url } = req.body;
-    db_1.db.prepare("INSERT OR REPLACE INTO videos (rank, class, url) VALUES (?, ?, ?)").run(rank, cls, url);
+    db.run("INSERT OR REPLACE INTO videos (rank, class, url) VALUES (?, ?, ?)", [rank, cls, url]);
+    (0, db_1.save_db)();
     res.json({ ok: true });
 });
 /* UPDATE */
-app.put("/api/videos/:id", (req, res) => {
+app.put("/api/videos/:id", async (req, res) => {
+    const db = await (0, db_1.get_db)();
     const { rank, class: cls, url } = req.body;
-    db_1.db.prepare("UPDATE videos SET rank = ?, class = ?, url = ? WHERE id = ?").run(rank, cls, url, Number(req.params.id));
+    db.run("UPDATE videos SET rank = ?, class = ?, url = ? WHERE id = ?", [rank, cls, url, Number(req.params.id)]);
+    (0, db_1.save_db)();
     res.json({ ok: true });
 });
 /* DELETE */
-app.delete("/api/videos/:id", (req, res) => {
-    db_1.db.prepare("DELETE FROM videos WHERE id = ?")
-        .run(Number(req.params.id));
-    // If table is empty, reset the autoincrement sequence
-    const count = db_1.db.prepare("SELECT COUNT(*) as count FROM videos").get();
-    if (count.count === 0) {
-        db_1.db.exec("DELETE FROM sqlite_sequence WHERE name='videos'");
+app.delete("/api/videos/:id", async (req, res) => {
+    const db = await (0, db_1.get_db)();
+    db.run("DELETE FROM videos WHERE id = ?", [Number(req.params.id)]);
+    const result = db.exec("SELECT COUNT(*) as count FROM videos");
+    const count = result.length > 0 ? result[0].values[0][0] : 0;
+    if (count === 0) {
+        db.run("DELETE FROM sqlite_sequence WHERE name='videos'");
     }
+    (0, db_1.save_db)();
     res.json({ ok: true });
 });
 /* ===================== START ===================== */

@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import { db } from "./db";
+import { get_db, save_db } from "./db";
 
 /* ===================== FIXED RANKS ===================== */
 const RANKS = [
@@ -25,14 +25,15 @@ app.get("/api/ranks", (_req: Request, res: Response) => {
 });
 
 /* GET (with filters) */
-app.get("/api/videos", (req: Request, res: Response) => {
+app.get("/api/videos", async (req: Request, res: Response) => {
+  const db = await get_db();
   const { rank, cls } = req.query as {
     rank?: string;
     cls?: string;
   };
 
   let sql = "SELECT * FROM videos WHERE 1=1";
-  const params: any[] = [];
+  const params: string[] = [];
 
   if (rank) {
     sql += " AND rank = ?";
@@ -43,51 +44,66 @@ app.get("/api/videos", (req: Request, res: Response) => {
     params.push(cls);
   }
 
-  const rows = db.prepare(sql).all(...params);
+  const stmt = db.prepare(sql);
+  if (params.length > 0) stmt.bind(params);
+
+  const rows: Record<string, unknown>[] = [];
+  while (stmt.step()) {
+    rows.push(stmt.getAsObject());
+  }
+  stmt.free();
+
   res.json(rows);
 });
 
 /* ADD */
-app.post("/api/videos", (req: Request, res: Response) => {
+app.post("/api/videos", async (req: Request, res: Response) => {
+  const db = await get_db();
   const { rank, class: cls, url } = req.body as {
     rank: string;
     class: string;
     url: string;
   };
 
-  db.prepare(
-    "INSERT OR REPLACE INTO videos (rank, class, url) VALUES (?, ?, ?)"
-  ).run(rank, cls, url);
-
+  db.run(
+    "INSERT OR REPLACE INTO videos (rank, class, url) VALUES (?, ?, ?)",
+    [rank, cls, url]
+  );
+  save_db();
   res.json({ ok: true });
 });
 
 /* UPDATE */
-app.put("/api/videos/:id", (req: Request, res: Response) => {
+app.put("/api/videos/:id", async (req: Request, res: Response) => {
+  const db = await get_db();
   const { rank, class: cls, url } = req.body as {
     rank: string;
     class: string;
     url: string;
   };
 
-  db.prepare(
-    "UPDATE videos SET rank = ?, class = ?, url = ? WHERE id = ?"
-  ).run(rank, cls, url, Number(req.params.id));
-
+  db.run(
+    "UPDATE videos SET rank = ?, class = ?, url = ? WHERE id = ?",
+    [rank, cls, url, Number(req.params.id)]
+  );
+  save_db();
   res.json({ ok: true });
 });
 
 /* DELETE */
-app.delete("/api/videos/:id", (req: Request, res: Response) => {
-  db.prepare("DELETE FROM videos WHERE id = ?")
-    .run(Number(req.params.id));
+app.delete("/api/videos/:id", async (req: Request, res: Response) => {
+  const db = await get_db();
+  db.run(
+    "DELETE FROM videos WHERE id = ?",
+    [Number(req.params.id)]
+  );
 
-  // If table is empty, reset the autoincrement sequence
-  const count = db.prepare("SELECT COUNT(*) as count FROM videos").get() as { count: number };
-  if (count.count === 0) {
-    db.exec("DELETE FROM sqlite_sequence WHERE name='videos'");
+  const result = db.exec("SELECT COUNT(*) as count FROM videos");
+  const count = result.length > 0 ? (result[0].values[0][0] as number) : 0;
+  if (count === 0) {
+    db.run("DELETE FROM sqlite_sequence WHERE name='videos'");
   }
-
+  save_db();
   res.json({ ok: true });
 });
 
